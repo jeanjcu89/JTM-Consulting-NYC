@@ -28,10 +28,32 @@ def load_font(candidates, size):
     return ImageFont.load_default()
 
 
-SANS_BOLD = ["seguibl.ttf", "segoeuib.ttf", "arialbd.ttf", "Arial Bold.ttf"]
-SANS_REG = ["segoeui.ttf", "arial.ttf"]
-MONO_REG = ["consola.ttf", "cour.ttf"]
-MONO_BOLD = ["consolab.ttf", "courbd.ttf"]
+FONTS = ROOT / "scripts" / "fonts"
+GEIST_MED = [str(FONTS / "geist-v4-latin-500.ttf"), "segoeui.ttf", "arial.ttf"]
+GEIST_BOLD = [str(FONTS / "geist-v4-latin-700.ttf"), "segoeuib.ttf", "arialbd.ttf"]
+GEIST_MONO_MED = [str(FONTS / "geist-mono-v4-latin-500.ttf"), "consola.ttf", "cour.ttf"]
+GEIST_MONO_BOLD = [str(FONTS / "geist-mono-v4-latin-600.ttf"), "consolab.ttf", "courbd.ttf"]
+
+
+def draw_tracked(draw, xy, text, font, fill, tracking_em=0.0):
+    """Draw text with extra letter-spacing in em units (positive = wider)."""
+    if tracking_em == 0:
+        draw.text(xy, text, font=font, fill=fill)
+        return draw.textlength(text, font=font)
+    extra = font.size * tracking_em
+    x, y = xy
+    start = x
+    for ch in text:
+        draw.text((x, y), ch, font=font, fill=fill)
+        x += draw.textlength(ch, font=font) + extra
+    return x - start
+
+
+def tracked_width(draw, text, font, tracking_em=0.0):
+    if tracking_em == 0:
+        return draw.textlength(text, font=font)
+    extra = font.size * tracking_em
+    return sum(draw.textlength(ch, font=font) for ch in text) + extra * max(0, len(text) - 1)
 
 
 def draw_grid(draw):
@@ -105,53 +127,51 @@ def main():
     # outer frame hint
     draw.rectangle((24, 24, W - 25, H - 25), outline=(40, 40, 40), width=1)
 
-    # fonts
-    f_brand = load_font(MONO_BOLD, 22)
-    f_meta = load_font(MONO_REG, 18)
-    f_eyebrow = load_font(MONO_REG, 18)
-    f_h1 = load_font(SANS_BOLD, 78)
-    f_h1_lime = load_font(SANS_BOLD, 78)
-    f_sub = load_font(SANS_REG, 24)
-    f_url = load_font(MONO_REG, 18)
+    # fonts (Geist family — matches the website's --font-display / --font-mono)
+    f_brand = load_font(GEIST_MONO_BOLD, 22)
+    f_meta = load_font(GEIST_MONO_MED, 18)
+    f_eyebrow = load_font(GEIST_MONO_MED, 18)
+    f_h1 = load_font(GEIST_BOLD, 78)
+    f_sub = load_font(GEIST_MED, 22)
+    f_url = load_font(GEIST_MONO_MED, 18)
+
+    PAD = 56
 
     # top-left: brand mark
-    PAD = 56
-    # tiny lime square
     draw.rectangle((PAD, PAD, PAD + 14, PAD + 14), fill=LIME)
-    draw.text((PAD + 26, PAD - 4), "JTM CONSULTING / NYC", font=f_brand, fill=INK)
+    draw_tracked(draw, (PAD + 26, PAD - 4),
+                 "JTM CONSULTING / NYC", f_brand, INK, tracking_em=0.04)
 
     # top-right: status pill
-    pill_text = "EST. 2018  ·  BROOKLYN, NY"
-    pw = text_w(draw, pill_text, f_meta)
-    px = W - PAD - pw
-    draw.text((px, PAD - 2), pill_text, font=f_meta, fill=INK_DIM)
+    pill = "EST. 2018  ·  BROOKLYN, NY"
+    pw = tracked_width(draw, pill, f_meta, tracking_em=0.05)
+    draw_tracked(draw, (W - PAD - pw, PAD - 2), pill, f_meta, INK_DIM, tracking_em=0.05)
 
-    # eyebrow
+    # eyebrow (mono, lime)
     EY = "// ONE TEAM. ONE INVOICE."
-    draw.text((PAD, 200), EY, font=f_eyebrow, fill=LIME)
+    draw_tracked(draw, (PAD, 200), EY, f_eyebrow, LIME, tracking_em=0.05)
 
-    # headline (3 lines)
-    line1 = "We build the"
-    line2_a = "digital backbone"
-    line3 = "for NYC small business."
+    # HEADLINE — all caps, Geist Bold
+    line1 = "WE BUILD THE"
+    line2 = "DIGITAL BACKBONE"
+    line3 = "FOR NYC SMALL BUSINESS."
     y = 232
     draw.text((PAD, y), line1, font=f_h1, fill=INK)
-    y += 88
-    draw.text((PAD, y), line2_a, font=f_h1_lime, fill=LIME)
-    # subtle underline accent under the lime line
-    lw = text_w(draw, line2_a, f_h1_lime)
+    y += 86
+    draw.text((PAD, y), line2, font=f_h1, fill=LIME)
+    lw = text_w(draw, line2, f_h1)
     draw.rectangle((PAD, y + 92, PAD + lw, y + 95), fill=LIME)
-    y += 88
+    y += 86
     draw.text((PAD, y), line3, font=f_h1, fill=INK)
 
-    # bottom-left: subline
-    SUB = "Web · Brand · SEO · IT · Networks · Cloud"
-    draw.text((PAD, H - PAD - 26), SUB, font=f_sub, fill=INK_DIM)
+    # bottom-left: subline (caps, mono-tag style)
+    SUB = "WEB · BRAND · SEO · IT · NETWORKS · CLOUD"
+    draw_tracked(draw, (PAD, H - PAD - 24), SUB, f_sub, INK_DIM, tracking_em=0.06)
 
     # bottom-right: domain
     URL = "JTMCONSULTINGNYC.COM"
-    uw = text_w(draw, URL, f_url)
-    draw.text((W - PAD - uw, H - PAD - 22), URL, font=f_url, fill=LIME)
+    uw = tracked_width(draw, URL, f_url, tracking_em=0.05)
+    draw_tracked(draw, (W - PAD - uw, H - PAD - 22), URL, f_url, LIME, tracking_em=0.05)
 
     # save as JPG, iterate quality to stay < 300 KB
     rgb = img.convert("RGB")
