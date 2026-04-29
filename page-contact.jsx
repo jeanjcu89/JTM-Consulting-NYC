@@ -77,8 +77,11 @@ function IntakeForm({ inline = false, onClose }) {
     details: ""
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const totalSteps = 3;
+  const WEB3FORMS_KEY = "bb5c1ece-d809-4a7c-a3c6-640761b7e98e";
 
   const services = [
   "Web design", "Branding", "SEO & marketing",
@@ -100,9 +103,48 @@ function IntakeForm({ inline = false, onClose }) {
   const next = () => setStep((s) => Math.min(s + 1, totalSteps));
   const back = () => setStep((s) => Math.max(s - 1, 1));
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
+
+    const payload = {
+      access_key: WEB3FORMS_KEY,
+      subject: `New project brief from ${data.name || "website visitor"}`,
+      from_name: data.name || "JTM website",
+      replyto: data.email,
+      name: data.name,
+      company: data.company,
+      email: data.email,
+      phone: data.phone,
+      services: data.services.join(", "),
+      budget: data.budget,
+      timeline: data.timeline,
+      details: data.details,
+      botcheck: ""
+    };
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.success) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(json.message || "Something went wrong. Please try again or email us directly.");
+      }
+    } catch (err) {
+      setSubmitError("Network error. Please try again or email info@jtmconsultingnyc.com.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const canNext = () => {
@@ -277,9 +319,17 @@ function IntakeForm({ inline = false, onClose }) {
           </div>
         }
 
+        {submitError &&
+        <div className="intake-error mono" role="alert" style={{ color: "#ff8a80", marginTop: 12, fontSize: 13 }}>
+            {submitError}
+          </div>
+        }
+
+        <input type="checkbox" name="botcheck" tabIndex={-1} style={{ display: "none" }} />
+
         <div className="intake-footer">
           {step > 1 ?
-          <button type="button" className="btn btn-ghost" onClick={back}>← Back</button> :
+          <button type="button" className="btn btn-ghost" onClick={back} disabled={submitting}>← Back</button> :
           <div />}
 
           {step < totalSteps ?
@@ -289,12 +339,17 @@ function IntakeForm({ inline = false, onClose }) {
             onClick={next}
             disabled={!canNext()}
             style={{ opacity: canNext() ? 1 : 0.4 }}>
-            
+
               Continue →
             </button> :
 
-          <button type="submit" className="btn btn-primary">
-              Send brief →
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={submitting}
+            style={{ opacity: submitting ? 0.6 : 1 }}>
+
+              {submitting ? "Sending..." : "Send brief →"}
             </button>
           }
         </div>
