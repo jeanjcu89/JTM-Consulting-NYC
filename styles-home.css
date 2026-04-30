@@ -166,14 +166,12 @@
   color: var(--accent-2);
   text-shadow: 0 0 28px rgba(var(--accent-2-rgb), 0.4);
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.45s ease, transform 0.5s ease;
+  transition: opacity 0.45s ease;
   font-style: italic;
   font-weight: 400;
 }
 .rot-word.active {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ============================================
