@@ -1,0 +1,13 @@
+{
+  "name": "JTM Consulting NYC",
+  "short_name": "JTM",
+  "description": "One team for your website, brand, marketing, network, and IT.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#c2ff3d",
+  "icons": [
+    { "src": "/favicon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/favicon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
