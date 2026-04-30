@@ -247,7 +247,7 @@ function HomePage({ openIntake, go }) {
           </h1>
           <p className="hero-sub">
             One team for your website, brand, marketing, network, and IT.
-            Built in Brooklyn for the businesses that make NYC actually work.
+            Built for the businesses that actually have to deliver.
           </p>
           <div className="hero-ctas">
             <button className="btn btn-primary" onClick={openIntake}>
