@@ -1,0 +1,45 @@
+# JTM Consulting NYC — Netlify config
+# Static site, no build step. Deploy by dragging this folder into Netlify
+# or pushing to a connected Git repo.
+
+[build]
+  publish = "."
+
+# Make jtmconsultingnyc.com / and /index.html resolve to the SPA.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Caching — fonts/images can be long; HTML must revalidate each visit.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/*.jsx"
+  [headers.values]
+    # JSX is babel-transpiled in-browser; treat like JS but allow short cache.
+    Cache-Control = "public, max-age=3600"
+    Content-Type = "text/babel; charset=utf-8"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"

@@ -53,15 +53,11 @@ function Nav({ route, openIntake }) {
     <nav className="nav">
       <div className="nav-inner">
         <a href="#/home" className="nav-logo" onClick={() => setOpen(false)}>
-          <span className="nav-logo-mark" aria-label="JTM">
-            <svg width="28" height="28" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <text x="6" y="22" fontFamily="Geist Mono, ui-monospace, monospace" fontSize="19" fontWeight="700" fill="#0a0a0a">J</text>
-              <rect x="16" y="20" width="9" height="3" fill="#0a0a0a" className="nav-logo-blink" />
-            </svg>
+          <span className="nav-logo-mark" aria-label="JTM Consulting NYC">
+            <img src="logo-mark.png" alt="" />
           </span>
-          <span className="nav-logo-text">JTM CONSULTING NYC</span>
-          <span className="nav-logo-text-mobile">
-</span>
+          <span className="nav-logo-text">JTM CONSULTING NYC</span>
+          <span className="nav-logo-text-mobile" aria-hidden="true"></span>
         </a>
         <div className="nav-links nav-links-desktop">
           {items.map((it) => <a
